@@ -5,13 +5,17 @@ Utilitaire CLI universel pour télécharger des vidéos (YouTube, TikTok, Instag
 ## Installation
 
 ```bash
+# Cloner le dépôt
+git clone https://github.com/Poutoo/Vega.git
+cd Vega
+
 # Créer et activer l'environnement virtuel
 python -m venv venv
 venv\Scripts\Activate.ps1   # PowerShell
 # ou : venv\Scripts\activate.bat   # CMD
 
 # Installer les dépendances
-pip install yt-dlp rich plyer
+pip install -r requirements.txt
 ```
 
 > **Prérequis système :** [FFmpeg](https://ffmpeg.org/) doit être installé et accessible dans le PATH (nécessaire pour fusionner l'audio/vidéo et pour les conversions).
@@ -73,5 +77,9 @@ vega --help
 ## Fonctionnement
 
 - Les vidéos sont automatiquement triées dans le dossier `Téléchargements/<Plateforme>` de l'utilisateur (ex : `Downloads/Youtube/`).
-- Chaque téléchargement est enregistré dans `history.json` (titre, URL, plateforme, chemin, date).
+- Chaque téléchargement est enregistré dans `history.json` (titre, URL, plateforme, chemin, date). Ce fichier reste local et n'est pas versionné.
 - Une notification système s'affiche à la fin du téléchargement (succès ou erreur).
+
+## Licence
+
+Distribué sous licence [MIT](LICENSE).

@@ -1,13 +1,11 @@
 import yt_dlp
 import argparse
-import sys
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from yt_dlp.utils import download_range_func
 
-# Interface Moderne
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn, SpinnerColumn
@@ -15,7 +13,6 @@ from rich.status import Status
 # pyrefly: ignore [missing-import]
 from plyer import notification
 
-# Initialisation de la console Rich
 console = Console()
 
 def parse_time(value: str) -> float:
@@ -76,8 +73,7 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         border_style="bright_blue"
     ))
 
-    # Phase 1 : Analyse
-    with Status("[bold yellow]Analyse de l'URL en cours...", spinner="dots") as status:
+    with Status("[bold yellow]Analyse de l'URL en cours...", spinner="dots"):
         try:
             with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
                 info = ydl.extract_info(url, download=False)
@@ -95,7 +91,6 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
     console.print(f"[bold green][+][/bold green] Titre : [cyan]{video_title}[/cyan]")
     console.print(f"[bold green][+][/bold green] Dossier : [blue]{download_dir}[/blue]\n")
 
-    # Barre de progression personnalisée
     progress = Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -120,7 +115,6 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         elif d['status'] == 'finished':
             progress.update(task_id, completed=100, total=100, description="[bold green]Terminé !")
 
-    # Configuration yt-dlp
     ydl_opts = {
         'merge_output_format': 'mp4',
         'outtmpl': str(download_dir / '%(title)s.%(ext)s'),
@@ -167,10 +161,9 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         with progress:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
-        
-        # Enregistrement et Notification
+
         log_to_history(video_title, url, platform, str(download_dir))
-        
+
         console.print(f"\n[bold green]✔[/bold green] [bold white]Téléchargement réussi :[/bold white] {video_title}")
         
         notification.notify(
@@ -196,11 +189,5 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--end", type=str, help="Fin de l'extrait à télécharger (ex: 3:00, 1:25:00)")
 
     args = parser.parse_args()
-
-    if args.url:
-        run_vega(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
-                  start=args.start, end=args.end)
-    else:
-        # Affichage d'un bel en-tête même pour l'aide
-        console.print(Panel.fit("[bold cyan]VEGA[/bold cyan] - Aide", border_style="blue"))
-        parser.print_help()
+    run_vega(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
+             start=args.start, end=args.end)
