@@ -16,10 +16,14 @@ from plyer import notification
 
 console = Console()
 
+PINK = "#F7B6C2"        # rose pastel principal (bordures, accents)
+PINK_DEEP = "#F48FB1"   # rose plus soutenu (titres, emphase)
+PINK_LIGHT = "#FADDE1"  # rose très clair (texte secondaire)
+
 def print_banner() -> None:
     console.print(Panel.fit(
-        "[bold cyan]VEGA[/bold cyan] [white]v1.1 - Downloader Universel[/white]",
-        border_style="bright_blue"
+        f"[bold {PINK_DEEP}]VEGA[/] [white]v1.1 - Downloader Universel[/white]",
+        border_style=PINK
     ))
 
 def parse_time(value: str) -> float:
@@ -73,7 +77,7 @@ class YDLLogger:
 
 def analyze_url(url: str) -> tuple[str, str]:
     """Extrait la plateforme et le titre de la vidéo sans la télécharger."""
-    with Status("[bold yellow]Analyse de l'URL en cours...", spinner="dots"):
+    with Status(f"[bold {PINK_DEEP}]Analyse de l'URL en cours...", spinner="dots"):
         with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
             info = ydl.extract_info(url, download=False)
             platform = info.get('extractor_key', 'Divers').capitalize()
@@ -83,16 +87,16 @@ def analyze_url(url: str) -> tuple[str, str]:
 def build_progress_tracker() -> tuple[Progress, Callable[[dict], None]]:
     """Crée la barre de progression rich et le hook yt-dlp qui la met à jour."""
     progress = Progress(
-        SpinnerColumn(),
+        SpinnerColumn(style=PINK),
         TextColumn("[progress.description]{task.description}"),
-        BarColumn(bar_width=None, pulse_style="cyan"),
+        BarColumn(bar_width=None, pulse_style=PINK, complete_style=PINK_DEEP, finished_style=PINK_DEEP),
         TaskProgressColumn(),
         DownloadColumn(),
         TransferSpeedColumn(),
         TimeRemainingColumn(),
         expand=True
     )
-    task_id = progress.add_task("[bold cyan]Téléchargement...", total=None)
+    task_id = progress.add_task(f"[bold {PINK_DEEP}]Téléchargement...", total=None)
 
     def progress_hook(d: dict) -> None:
         if d['status'] == 'downloading':
@@ -167,11 +171,11 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
     download_dir = get_download_path() / platform
     download_dir.mkdir(parents=True, exist_ok=True)
 
-    console.print(f"[bold green][+][/bold green] Plateforme : [bold magenta]{platform}[/bold magenta]")
-    console.print(f"[bold green][+][/bold green] Titre : [cyan]{video_title}[/cyan]")
-    console.print(f"[bold green][+][/bold green] Dossier : [blue]{download_dir}[/blue]\n")
+    console.print(f"[bold {PINK_DEEP}][+][/] Plateforme : [bold {PINK}]{platform}[/]")
+    console.print(f"[bold {PINK_DEEP}][+][/] Titre : [{PINK_LIGHT}]{video_title}[/]")
+    console.print(f"[bold {PINK_DEEP}][+][/] Dossier : [{PINK_LIGHT}]{download_dir}[/]\n")
     if start or end:
-        console.print(f"[bold green][+][/bold green] Extrait : [yellow]{start or '0:00'} → {end or 'fin'}[/yellow]\n")
+        console.print(f"[bold {PINK_DEEP}][+][/] Extrait : [{PINK}]{start or '0:00'} → {end or 'fin'}[/]\n")
 
     progress, progress_hook = build_progress_tracker()
     ydl_opts = build_ydl_opts(download_dir, progress_hook, audio_only, video_only, quality, start, end)
@@ -183,7 +187,7 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
 
         log_to_history(video_title, url, platform, str(download_dir))
 
-        console.print(f"\n[bold green]✔[/bold green] [bold white]Téléchargement réussi :[/bold white] {video_title}")
+        console.print(f"\n[bold green]✔[/bold green] [bold {PINK_DEEP}]Téléchargement réussi :[/] {video_title}")
 
         notification.notify(
             title="Vega - Succès",
@@ -199,11 +203,11 @@ def print_help() -> None:
     """Affiche une aide stylisée avec rich, à la place du rendu brut d'argparse."""
     print_banner()
 
-    console.print("\n[bold white]Usage :[/bold white] [cyan]vega <url> \\[options][/cyan]\n")
+    console.print(f"\n[bold {PINK_DEEP}]Usage :[/] [{PINK}]vega <url> \\[options][/]\n")
 
-    table = Table(show_header=True, header_style="bold cyan", border_style="bright_blue")
-    table.add_column("Option", style="bold green")
-    table.add_column("Alias", style="yellow")
+    table = Table(show_header=True, header_style=f"bold {PINK_DEEP}", border_style=PINK)
+    table.add_column("Option", style=f"bold {PINK_DEEP}")
+    table.add_column("Alias", style=PINK)
     table.add_column("Description")
 
     table.add_row("url", "—", "Lien de la vidéo à télécharger (YouTube, TikTok, Instagram, etc.)")
@@ -216,10 +220,10 @@ def print_help() -> None:
 
     console.print(table)
 
-    console.print("\n[bold white]Exemples :[/bold white]")
-    console.print("  [dim]$[/dim] vega https://youtu.be/XXXX -a")
-    console.print("  [dim]$[/dim] vega https://youtu.be/XXXX -vo -q 720")
-    console.print("  [dim]$[/dim] vega https://youtu.be/XXXX -s 0:00 -e 3:00\n")
+    console.print(f"\n[bold {PINK_DEEP}]Exemples :[/]")
+    console.print(f"  [{PINK_LIGHT}]$[/] vega https://youtu.be/XXXX -a")
+    console.print(f"  [{PINK_LIGHT}]$[/] vega https://youtu.be/XXXX -vo -q 720")
+    console.print(f"  [{PINK_LIGHT}]$[/] vega https://youtu.be/XXXX -s 0:00 -e 3:00\n")
 
 class RichHelpAction(argparse.Action):
     """Action argparse qui affiche l'aide stylisée rich au lieu du rendu par défaut."""
