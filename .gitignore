@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+history.json
+.claude/
+gemini.md
+AI_CONTEXT_VEGA.md

@@ -1,0 +1,77 @@
+# Vega
+
+Utilitaire CLI universel pour télécharger des vidéos (YouTube, TikTok, Instagram, etc.) via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), avec une interface moderne basée sur `rich`.
+
+## Installation
+
+```bash
+# Créer et activer l'environnement virtuel
+python -m venv venv
+venv\Scripts\Activate.ps1   # PowerShell
+# ou : venv\Scripts\activate.bat   # CMD
+
+# Installer les dépendances
+pip install yt-dlp rich plyer
+```
+
+> **Prérequis système :** [FFmpeg](https://ffmpeg.org/) doit être installé et accessible dans le PATH (nécessaire pour fusionner l'audio/vidéo et pour les conversions).
+
+## Utilisation
+
+```bash
+python vega.py <url> [options]
+```
+
+Si un alias global `vega` est configuré, la commande peut aussi s'écrire :
+
+```bash
+vega <url> [options]
+```
+
+## Commandes et options
+
+| Commande / Option | Alias court | Description |
+|---|---|---|
+| `<url>` | — | (Obligatoire) Lien de la vidéo à télécharger (YouTube, TikTok, Instagram, etc.) |
+| `--audio` | `-a` | Télécharge uniquement l'audio, converti en MP3 (qualité 192 kbps) |
+| `--video-only` | `-vo` | Télécharge uniquement la vidéo, sans le son |
+| `--quality <valeur>` | `-q <valeur>` | Limite la résolution vidéo (ex : `720`, `1080`) |
+| `--start <temps>` | `-s <temps>` | Début de l'extrait à télécharger (ex : `0:00`, `1:23:45`) |
+| `--end <temps>` | `-e <temps>` | Fin de l'extrait à télécharger (ex : `3:00`, `1:25:00`) |
+| `--help` | `-h` | Affiche l'aide du programme |
+
+## Exemples
+
+```bash
+# Téléchargement simple (meilleure qualité, vidéo + audio)
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX
+
+# Téléchargement audio uniquement (MP3)
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a
+
+# Téléchargement vidéo sans son
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -vo
+
+# Limiter la résolution à 720p
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -q 720
+
+# Combiner les options : vidéo sans son, limitée à 1080p
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -vo -q 1080
+
+# Ne télécharger que l'extrait de 0:00 à 3:00
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -s 0:00 -e 3:00
+
+# Extrait audio uniquement, de 1:23:45 à la fin de la vidéo
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a -s 1:23:45
+
+# Afficher l'aide
+vega --help
+```
+
+> **Note :** le découpage utilise `--force-keyframes-at-cuts` en interne pour une coupe précise à la seconde près, ce qui implique un léger ré-encodage local (via FFmpeg) et donc un temps de traitement un peu plus long qu'un téléchargement classique.
+
+## Fonctionnement
+
+- Les vidéos sont automatiquement triées dans le dossier `Téléchargements/<Plateforme>` de l'utilisateur (ex : `Downloads/Youtube/`).
+- Chaque téléchargement est enregistré dans `history.json` (titre, URL, plateforme, chemin, date).
+- Une notification système s'affiche à la fin du téléchargement (succès ou erreur).
