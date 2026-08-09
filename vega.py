@@ -10,10 +10,17 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, TextColumn, BarColumn, TaskProgressColumn, DownloadColumn, TransferSpeedColumn, TimeRemainingColumn, SpinnerColumn
 from rich.status import Status
+from rich.table import Table
 # pyrefly: ignore [missing-import]
 from plyer import notification
 
 console = Console()
+
+def print_banner() -> None:
+    console.print(Panel.fit(
+        "[bold cyan]VEGA[/bold cyan] [white]v1.1 - Downloader Universel[/white]",
+        border_style="bright_blue"
+    ))
 
 def parse_time(value: str) -> float:
     """Convertit un timestamp ('SS', 'MM:SS' ou 'HH:MM:SS') en secondes."""
@@ -148,10 +155,7 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
              start: Optional[str] = None, end: Optional[str] = None) -> None:
     """Télécharge une vidéo ou de l'audio avec une interface moderne et tri par plateforme."""
 
-    console.print(Panel.fit(
-        "[bold cyan]VEGA[/bold cyan] [white]v1.1 - Downloader Universel[/white]",
-        border_style="bright_blue"
-    ))
+    print_banner()
 
     try:
         platform, video_title = analyze_url(url)
@@ -191,11 +195,46 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         console.print(f"\n[bold red]✘[/bold red] Erreur : {e}")
         notification.notify(title="Vega - Erreur", message=str(e), app_name="Vega")
 
+def print_help() -> None:
+    """Affiche une aide stylisée avec rich, à la place du rendu brut d'argparse."""
+    print_banner()
+
+    console.print("\n[bold white]Usage :[/bold white] [cyan]vega <url> \\[options][/cyan]\n")
+
+    table = Table(show_header=True, header_style="bold cyan", border_style="bright_blue")
+    table.add_column("Option", style="bold green")
+    table.add_column("Alias", style="yellow")
+    table.add_column("Description")
+
+    table.add_row("url", "—", "Lien de la vidéo à télécharger (YouTube, TikTok, Instagram, etc.)")
+    table.add_row("--audio", "-a", "Télécharger uniquement l'audio (MP3)")
+    table.add_row("--video-only", "-vo", "Télécharger la vidéo sans le son")
+    table.add_row("--quality <val>", "-q <val>", "Limiter la résolution (ex: 720, 1080)")
+    table.add_row("--start <temps>", "-s <temps>", "Début de l'extrait (ex: 0:00, 1:23:45)")
+    table.add_row("--end <temps>", "-e <temps>", "Fin de l'extrait (ex: 3:00, 1:25:00)")
+    table.add_row("--help", "-h", "Affiche cette aide")
+
+    console.print(table)
+
+    console.print("\n[bold white]Exemples :[/bold white]")
+    console.print("  [dim]$[/dim] vega https://youtu.be/XXXX -a")
+    console.print("  [dim]$[/dim] vega https://youtu.be/XXXX -vo -q 720")
+    console.print("  [dim]$[/dim] vega https://youtu.be/XXXX -s 0:00 -e 3:00\n")
+
+class RichHelpAction(argparse.Action):
+    """Action argparse qui affiche l'aide stylisée rich au lieu du rendu par défaut."""
+    def __init__(self, option_strings, dest, **kwargs):
+        kwargs.setdefault("nargs", 0)
+        kwargs.setdefault("help", "Affiche cette aide")
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        print_help()
+        parser.exit()
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Vega : Downloader Universel",
-        formatter_class=argparse.RawTextHelpFormatter
-    )
+    parser = argparse.ArgumentParser(description="Vega : Downloader Universel", add_help=False)
+    parser.add_argument("-h", "--help", action=RichHelpAction)
     parser.add_argument("url", help="Lien de la vidéo (YouTube, TikTok, Instagram, etc.)")
     parser.add_argument("-a", "--audio", action="store_true", help="Télécharger uniquement l'audio (MP3)")
     parser.add_argument("-vo", "--video-only", action="store_true", help="Télécharger la vidéo sans le son")
