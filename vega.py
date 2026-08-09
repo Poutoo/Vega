@@ -3,7 +3,7 @@ import argparse
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Callable, Optional
 from yt_dlp.utils import download_range_func
 
 from rich.console import Console
@@ -64,33 +64,17 @@ class YDLLogger:
     def error(self, msg):
         console.print(f"[bold red]✘ {msg}[/bold red]")
 
-def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quality: Optional[str] = None,
-             start: Optional[str] = None, end: Optional[str] = None) -> None:
-    """Télécharge une vidéo ou de l'audio avec une interface moderne et tri par plateforme."""
-    
-    console.print(Panel.fit(
-        "[bold cyan]VEGA[/bold cyan] [white]v1.1 - Downloader Universel[/white]",
-        border_style="bright_blue"
-    ))
-
+def analyze_url(url: str) -> tuple[str, str]:
+    """Extrait la plateforme et le titre de la vidéo sans la télécharger."""
     with Status("[bold yellow]Analyse de l'URL en cours...", spinner="dots"):
-        try:
-            with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
-                info = ydl.extract_info(url, download=False)
-                platform = info.get('extractor_key', 'Divers').capitalize()
-                video_title = info.get('title', 'Vidéo inconnue')
-        except Exception as e:
-            console.print(f"[bold red][/!\\] Erreur d'analyse : {e}")
-            notification.notify(title="Vega - Erreur", message="Impossible d'analyser l'URL", app_name="Vega")
-            return
+        with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            platform = info.get('extractor_key', 'Divers').capitalize()
+            video_title = info.get('title', 'Vidéo inconnue')
+    return platform, video_title
 
-    download_dir = get_download_path() / platform
-    download_dir.mkdir(parents=True, exist_ok=True)
-    
-    console.print(f"[bold green][+][/bold green] Plateforme : [bold magenta]{platform}[/bold magenta]")
-    console.print(f"[bold green][+][/bold green] Titre : [cyan]{video_title}[/cyan]")
-    console.print(f"[bold green][+][/bold green] Dossier : [blue]{download_dir}[/blue]\n")
-
+def build_progress_tracker() -> tuple[Progress, Callable[[dict], None]]:
+    """Crée la barre de progression rich et le hook yt-dlp qui la met à jour."""
     progress = Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -101,21 +85,23 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         TimeRemainingColumn(),
         expand=True
     )
-
     task_id = progress.add_task("[bold cyan]Téléchargement...", total=None)
 
-    def progress_hook(d):
+    def progress_hook(d: dict) -> None:
         if d['status'] == 'downloading':
             p = d.get('downloaded_bytes', 0)
             t = d.get('total_bytes') or d.get('total_bytes_estimate')
-            if t:
-                progress.update(task_id, completed=p, total=t)
-            else:
-                progress.update(task_id, completed=p, total=None) # Mode indéterminé si pas de taille
+            progress.update(task_id, completed=p, total=t) # total=None si taille inconnue -> mode indéterminé
         elif d['status'] == 'finished':
             progress.update(task_id, completed=100, total=100, description="[bold green]Terminé !")
 
-    ydl_opts = {
+    return progress, progress_hook
+
+def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], audio_only: bool,
+                    video_only: bool, quality: Optional[str], start: Optional[str],
+                    end: Optional[str]) -> dict[str, Any]:
+    """Construit les options yt-dlp en fonction du format et de l'extrait demandés."""
+    ydl_opts: dict[str, Any] = {
         'merge_output_format': 'mp4',
         'outtmpl': str(download_dir / '%(title)s.%(ext)s'),
         'progress_hooks': [progress_hook],
@@ -155,7 +141,36 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         end_sec = parse_time(end) if end else float('inf')
         ydl_opts['download_ranges'] = download_range_func(None, [(start_sec, end_sec)])
         ydl_opts['force_keyframes_at_cuts'] = True
+
+    return ydl_opts
+
+def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quality: Optional[str] = None,
+             start: Optional[str] = None, end: Optional[str] = None) -> None:
+    """Télécharge une vidéo ou de l'audio avec une interface moderne et tri par plateforme."""
+
+    console.print(Panel.fit(
+        "[bold cyan]VEGA[/bold cyan] [white]v1.1 - Downloader Universel[/white]",
+        border_style="bright_blue"
+    ))
+
+    try:
+        platform, video_title = analyze_url(url)
+    except Exception as e:
+        console.print(f"[bold red][/!\\] Erreur d'analyse : {e}")
+        notification.notify(title="Vega - Erreur", message="Impossible d'analyser l'URL", app_name="Vega")
+        return
+
+    download_dir = get_download_path() / platform
+    download_dir.mkdir(parents=True, exist_ok=True)
+
+    console.print(f"[bold green][+][/bold green] Plateforme : [bold magenta]{platform}[/bold magenta]")
+    console.print(f"[bold green][+][/bold green] Titre : [cyan]{video_title}[/cyan]")
+    console.print(f"[bold green][+][/bold green] Dossier : [blue]{download_dir}[/blue]\n")
+    if start or end:
         console.print(f"[bold green][+][/bold green] Extrait : [yellow]{start or '0:00'} → {end or 'fin'}[/yellow]\n")
+
+    progress, progress_hook = build_progress_tracker()
+    ydl_opts = build_ydl_opts(download_dir, progress_hook, audio_only, video_only, quality, start, end)
 
     try:
         with progress:
@@ -165,7 +180,7 @@ def run_vega(url: str, audio_only: bool = False, video_only: bool = False, quali
         log_to_history(video_title, url, platform, str(download_dir))
 
         console.print(f"\n[bold green]✔[/bold green] [bold white]Téléchargement réussi :[/bold white] {video_title}")
-        
+
         notification.notify(
             title="Vega - Succès",
             message=f"Terminé : {video_title}",
