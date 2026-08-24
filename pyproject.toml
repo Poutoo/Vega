@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vega-dlp"
+version = "1.1.0"
+description = "Universal CLI video downloader (YouTube, TikTok, Instagram, etc.) built on yt-dlp, with a modern rich-powered interface."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Poutoo" }]
+keywords = ["youtube", "tiktok", "instagram", "download", "yt-dlp", "cli", "video"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Internet",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "yt-dlp>=2026.3.17",
+    "rich>=13.0.0",
+    "plyer>=2.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Poutoo/Vega"
+Repository = "https://github.com/Poutoo/Vega"
+Issues = "https://github.com/Poutoo/Vega/issues"
+
+[project.scripts]
+vega = "vega:main"
+
+[tool.setuptools]
+py-modules = ["vega"]

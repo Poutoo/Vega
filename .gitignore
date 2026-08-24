@@ -5,3 +5,6 @@ history.json
 .claude/
 gemini.md
 AI_CONTEXT_VEGA.md
+*.egg-info/
+build/
+dist/

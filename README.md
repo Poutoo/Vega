@@ -2,33 +2,58 @@
 
 **English | [Français](README.fr.md)**
 
+[![License: MIT](https://img.shields.io/github/license/Poutoo/Vega?color=F48FB1)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-F48FB1)](https://www.python.org/)
+[![Built with yt-dlp](https://img.shields.io/badge/built%20with-yt--dlp-F48FB1)](https://github.com/yt-dlp/yt-dlp)
+
 Universal CLI utility to download videos (YouTube, TikTok, Instagram, etc.) via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), with a modern interface powered by `rich`.
+
+## Requirements
+
+- [Python 3.9+](https://www.python.org/downloads/)
+- [FFmpeg](https://ffmpeg.org/) installed and available in your PATH (needed to merge audio/video and for conversions)
 
 ## Installation
 
+The simplest way to get the `vega` command available everywhere on your system, without worrying about virtual environments, is [`pipx`](https://pipx.pypa.io/):
+
 ```bash
-# Clone the repository
+# Install pipx once, if you don't have it yet
+python -m pip install --user pipx
+python -m pipx ensurepath
+
+# Install Vega
+pipx install git+https://github.com/Poutoo/Vega.git
+```
+
+Restart your terminal, then run `vega --help` to confirm it's installed.
+
+<details>
+<summary>Alternative: plain pip</summary>
+
+```bash
+pip install git+https://github.com/Poutoo/Vega.git
+```
+
+</details>
+
+<details>
+<summary>Alternative: run from source (for contributors)</summary>
+
+```bash
 git clone https://github.com/Poutoo/Vega.git
 cd Vega
 
-# Create and activate the virtual environment
 python -m venv venv
 venv\Scripts\Activate.ps1   # PowerShell
 # or: venv\Scripts\activate.bat   # CMD
 
-# Install dependencies
-pip install -r requirements.txt
+pip install -e .
 ```
 
-> **System requirement:** [FFmpeg](https://ffmpeg.org/) must be installed and available in your PATH (needed to merge audio/video and for conversions).
+</details>
 
 ## Usage
-
-```bash
-python vega.py <url> [options]
-```
-
-If a global `vega` alias is set up, the command can also be written as:
 
 ```bash
 vega <url> [options]

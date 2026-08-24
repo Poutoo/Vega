@@ -2,33 +2,58 @@
 
 **[English](README.md) | Français**
 
+[![License: MIT](https://img.shields.io/github/license/Poutoo/Vega?color=F48FB1)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-F48FB1)](https://www.python.org/)
+[![Built with yt-dlp](https://img.shields.io/badge/built%20with-yt--dlp-F48FB1)](https://github.com/yt-dlp/yt-dlp)
+
 Utilitaire CLI universel pour télécharger des vidéos (YouTube, TikTok, Instagram, etc.) via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), avec une interface moderne basée sur `rich`.
+
+## Prérequis
+
+- [Python 3.9+](https://www.python.org/downloads/)
+- [FFmpeg](https://ffmpeg.org/) installé et accessible dans le PATH (nécessaire pour fusionner l'audio/vidéo et pour les conversions)
 
 ## Installation
 
+Le moyen le plus simple d'obtenir la commande `vega` disponible partout sur votre système, sans se soucier des environnements virtuels, est [`pipx`](https://pipx.pypa.io/) :
+
 ```bash
-# Cloner le dépôt
+# Installer pipx une fois, si vous ne l'avez pas déjà
+python -m pip install --user pipx
+python -m pipx ensurepath
+
+# Installer Vega
+pipx install git+https://github.com/Poutoo/Vega.git
+```
+
+Redémarrez votre terminal, puis lancez `vega --help` pour confirmer l'installation.
+
+<details>
+<summary>Alternative : pip classique</summary>
+
+```bash
+pip install git+https://github.com/Poutoo/Vega.git
+```
+
+</details>
+
+<details>
+<summary>Alternative : exécuter depuis les sources (pour les contributeurs)</summary>
+
+```bash
 git clone https://github.com/Poutoo/Vega.git
 cd Vega
 
-# Créer et activer l'environnement virtuel
 python -m venv venv
 venv\Scripts\Activate.ps1   # PowerShell
 # ou : venv\Scripts\activate.bat   # CMD
 
-# Installer les dépendances
-pip install -r requirements.txt
+pip install -e .
 ```
 
-> **Prérequis système :** [FFmpeg](https://ffmpeg.org/) doit être installé et accessible dans le PATH (nécessaire pour fusionner l'audio/vidéo et pour les conversions).
+</details>
 
 ## Utilisation
-
-```bash
-python vega.py <url> [options]
-```
-
-Si un alias global `vega` est configuré, la commande peut aussi s'écrire :
 
 ```bash
 vega <url> [options]

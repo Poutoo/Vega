@@ -236,7 +236,7 @@ class RichHelpAction(argparse.Action):
         print_help()
         parser.exit()
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser(description="Vega : Downloader Universel", add_help=False)
     parser.add_argument("-h", "--help", action=RichHelpAction)
     parser.add_argument("url", help="Lien de la vidéo (YouTube, TikTok, Instagram, etc.)")
@@ -249,3 +249,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     run_vega(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
              start=args.start, end=args.end)
+
+if __name__ == "__main__":
+    main()
