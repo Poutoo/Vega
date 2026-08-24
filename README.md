@@ -2,6 +2,7 @@
 
 **English | [Français](README.fr.md)**
 
+[![PyPI](https://img.shields.io/pypi/v/vega-dlp?color=F48FB1)](https://pypi.org/project/vega-dlp/)
 [![License: MIT](https://img.shields.io/github/license/Poutoo/Vega?color=F48FB1)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-F48FB1)](https://www.python.org/)
 [![Built with yt-dlp](https://img.shields.io/badge/built%20with-yt--dlp-F48FB1)](https://github.com/yt-dlp/yt-dlp)
@@ -23,7 +24,7 @@ python -m pip install --user pipx
 python -m pipx ensurepath
 
 # Install Vega
-pipx install git+https://github.com/Poutoo/Vega.git
+pipx install vega-dlp
 ```
 
 Restart your terminal, then run `vega --help` to confirm it's installed.
@@ -32,7 +33,7 @@ Restart your terminal, then run `vega --help` to confirm it's installed.
 <summary>Alternative: plain pip</summary>
 
 ```bash
-pip install git+https://github.com/Poutoo/Vega.git
+pip install vega-dlp
 ```
 
 </details>
