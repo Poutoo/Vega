@@ -1,0 +1,146 @@
+/**
+ * Synced verbatim from design-system/globals.css (see design-system/README.md).
+ * Do not hand-edit — update the source of truth and re-copy instead.
+ * Accent color is overridden by vega-theme.css, loaded after this file.
+ */
+
+/**
+ * Design tokens as CSS custom properties, extracted from poutoo.dev's homepage.
+ * Use standalone (non-Tailwind projects) or alongside tailwind.preset.js, which
+ * reads these same variables via hsl(var(--x)).
+ *
+ * Values are HSL components (no hsl() wrapper) so they can be composed with
+ * alpha, e.g. hsl(var(--accent) / 0.5).
+ */
+
+:root {
+  /* Light mode (tokens exist, but the source site pins defaultTheme="dark" —
+     see README "Limites/hypothèses") */
+  --background: 220 14% 96%;   /* #F1F5F9 */
+  --surface: 0 0% 100%;        /* #FFFFFF */
+  --border: 214 32% 91%;       /* #E2E8F0 slate-200 */
+  --primary: 222 47% 11%;      /* #0F172A slate-900 */
+  --secondary: 215 16% 47%;    /* #64748B slate-500 */
+  --accent: 330 81% 60%;       /* #EC4899 pink-500 */
+  --accent-glow: 329 86% 70%;  /* #F472B6 pink-400 */
+
+  /* Semantic (static, not theme-dependent) */
+  --success: 160 84% 39%;      /* #10b981 emerald-500 */
+  --warning: 38 92% 50%;       /* #f59e0b amber-500 */
+  --danger: 0 84% 60%;         /* #ef4444 red-500 */
+
+  /* Glass recipe (core) */
+  --glass-bg: 0 0% 100%;
+  --glass-bg-alpha: 0.01;
+  --glass-border-alpha: 0.10;
+  --glass-blur: 16px;
+  --glass-saturate: 1.1;
+  --glass-radius: 32px;
+  --glass-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.1);
+
+  /* Page background */
+  --page-gradient: linear-gradient(to bottom, #121212, #000000);
+
+  /* Motion */
+  --transition-duration: 300ms;
+  --transition-easing: ease-in-out;
+}
+
+.dark {
+  --background: 240 10% 3.9%;  /* #09090b zinc-950 */
+  --surface: 215 28% 17%;      /* #1E293B slate-800 */
+  --border: 217 33% 17%;       /* #334155 */
+  --primary: 210 40% 98%;      /* #F8FAFC slate-50 */
+  --secondary: 215 20% 65%;    /* #94A3B8 slate-400 */
+  --accent: 330 81% 60%;       /* #EC4899 */
+  --accent-glow: 329 86% 70%;  /* #F472B6 */
+}
+
+/* --- Glass utility classes (framework-agnostic) --- */
+
+.glass-core {
+  background: hsl(var(--glass-bg) / var(--glass-bg-alpha));
+  border: 1px solid hsl(var(--glass-bg) / var(--glass-border-alpha));
+  border-radius: var(--glass-radius);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-button {
+  background: hsl(var(--glass-bg) / var(--glass-bg-alpha));
+  border: 1px solid hsl(var(--glass-bg) / var(--glass-border-alpha));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: var(--glass-shadow);
+  border-radius: 9999px;
+  height: 44px;
+  padding: 0 24px;
+  color: #fff;
+  font-weight: 500;
+  font-size: 15px;
+  transition: all var(--transition-duration) var(--transition-easing);
+}
+
+.glass-modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.glass-modal-panel {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-status-pill {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px hsl(var(--accent));
+}
+
+/* --- Keyframes --- */
+
+@keyframes aurora {
+  0% { background-position: 0% 100%; }
+  50% { background-position: 100% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(150%) skewX(-20deg); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.animate-aurora { animation: aurora 10s linear infinite; }
+.animate-shine { animation: shine 2s linear infinite; }
+.animate-marquee { animation: marquee 15s linear infinite; }
+.animate-gradient { animation: gradient 8s ease infinite; }
+.animate-shimmer { animation: shimmer 2s linear infinite; }
+.bg-300\% { background-size: 300% 300%; }

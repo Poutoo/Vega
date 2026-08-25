@@ -60,6 +60,8 @@ pip install -e .
 vega <url> [options]
 ```
 
+Vous préférez un navigateur au terminal ? Vega propose aussi une interface web locale — voir [Interface web](#interface-web) ci-dessous.
+
 ## Commandes et options
 
 | Commande / Option | Alias court | Description |
@@ -71,6 +73,7 @@ vega <url> [options]
 | `--start <temps>` | `-s <temps>` | Début de l'extrait à télécharger (ex : `0:00`, `1:23:45`) |
 | `--end <temps>` | `-e <temps>` | Fin de l'extrait à télécharger (ex : `3:00`, `1:25:00`) |
 | `--help` | `-h` | Affiche l'aide du programme |
+| `web` | — | Lance l'interface web locale |
 
 ## Exemples
 
@@ -101,6 +104,29 @@ vega --help
 ```
 
 > **Note :** le découpage utilise `--force-keyframes-at-cuts` en interne pour une coupe précise à la seconde près, ce qui implique un léger ré-encodage local (via FFmpeg) et donc un temps de traitement un peu plus long qu'un téléchargement classique.
+
+## Interface web
+
+Pour celles et ceux qui ne sont pas à l'aise avec un terminal, Vega propose aussi une interface web locale avec les mêmes options de téléchargement et un suivi de la progression en direct. C'est une dépendance optionnelle, exclue de l'installation par défaut pour garder le CLI de base léger.
+
+```bash
+# pipx
+pipx install "vega-dlp[web]"
+
+# ou pip classique
+pip install "vega-dlp[web]"
+```
+
+```bash
+vega web
+```
+
+Cela démarre un serveur accessible uniquement en local (`127.0.0.1`, jamais exposé sur votre réseau) et l'ouvre dans votre navigateur par défaut. Options :
+
+| Option | Description |
+|---|---|
+| `--port <n>` | Port à utiliser (défaut : `8756`) |
+| `--no-browser` | N'ouvre pas automatiquement le navigateur |
 
 ## Fonctionnement
 

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vega</title>
+<link rel="stylesheet" href="/globals.css">
+<link rel="stylesheet" href="/vega-theme.css">
+</head>
+<body>
+<main class="page">
+  <div class="glass-core card">
+    <h1 class="title">VEGA</h1>
+    <p class="subtitle">Downloader universel — YouTube, TikTok, Instagram, etc.</p>
+
+    <form id="download-form">
+      <input type="url" id="url" name="url" placeholder="Colle un lien de vidéo…" required autofocus>
+
+      <div class="options">
+        <label><input type="checkbox" id="audio_only" name="audio_only"> Audio seulement</label>
+        <label><input type="checkbox" id="video_only" name="video_only"> Vidéo sans son</label>
+        <label>Qualité
+          <select id="quality" name="quality">
+            <option value="">Illimitée</option>
+            <option value="2160">2160p (4K)</option>
+            <option value="1440">1440p</option>
+            <option value="1080">1080p</option>
+            <option value="720">720p</option>
+            <option value="480">480p</option>
+            <option value="360">360p</option>
+          </select>
+        </label>
+        <label>Début <input type="text" id="start" name="start" placeholder="0:00"></label>
+        <label>Fin <input type="text" id="end" name="end" placeholder="3:00"></label>
+      </div>
+
+      <button type="submit" class="glass-button">Télécharger</button>
+    </form>
+
+    <div id="status" class="glass-status-pill status-idle">
+      <span class="status-dot"></span>
+      <span id="status-text">En attente d'un lien…</span>
+    </div>
+  </div>
+
+  <div class="glass-core card">
+    <h2 class="section-title">Historique</h2>
+    <ul id="history-list"></ul>
+  </div>
+
+  <footer class="footer">
+    <a href="https://github.com/Poutoo/Vega" target="_blank" rel="noopener noreferrer">Powered by Poutoo</a>
+  </footer>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>

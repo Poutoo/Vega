@@ -1,0 +1,173 @@
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Callable, Optional
+
+import yt_dlp
+from plyer import notification
+from yt_dlp.utils import download_range_func
+
+from vega.progress import ProgressSink
+
+
+def parse_time(value: str) -> float:
+    """Accepts 'SS', 'MM:SS', or 'HH:MM:SS'."""
+    seconds = 0.0
+    for part in value.split(":"):
+        seconds = seconds * 60 + float(part)
+    return seconds
+
+
+def get_download_path() -> Path:
+    return Path.home() / "Downloads"
+
+
+def log_to_history(title: str, url: str, platform: str, download_path: str) -> None:
+    history_file = Path("history.json")
+
+    new_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "title": title,
+        "url": url,
+        "platform": platform,
+        "path": download_path,
+    }
+
+    history = read_history()
+    history.append(new_entry)
+
+    with open(history_file, "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=4, ensure_ascii=False)
+
+
+def read_history() -> list[dict]:
+    history_file = Path("history.json")
+    if not history_file.exists():
+        return []
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+class YDLLogger:
+    """Adapts yt-dlp's logger interface to a single error callback."""
+
+    def __init__(self, on_error: Optional[Callable[[str], None]] = None) -> None:
+        self._on_error = on_error or (lambda msg: None)
+
+    def debug(self, msg: str) -> None:
+        pass
+
+    def info(self, msg: str) -> None:
+        pass
+
+    def warning(self, msg: str) -> None:
+        pass  # e.g. the JS runtime warning — not actionable
+
+    def error(self, msg: str) -> None:
+        self._on_error(msg)
+
+
+def analyze_url(url: str) -> tuple[str, str]:
+    with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
+        info = ydl.extract_info(url, download=False)
+        platform = info.get('extractor_key', 'Divers').capitalize()
+        video_title = info.get('title', 'Vidéo inconnue')
+    return platform, video_title
+
+
+def make_progress_hook(sink: ProgressSink) -> Callable[[dict], None]:
+    def progress_hook(d: dict) -> None:
+        if d['status'] == 'downloading':
+            downloaded = d.get('downloaded_bytes', 0)
+            total = d.get('total_bytes') or d.get('total_bytes_estimate')
+            sink.on_progress(downloaded, total)
+    return progress_hook
+
+
+def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], audio_only: bool,
+                    video_only: bool, quality: Optional[str], start: Optional[str],
+                    end: Optional[str], on_error: Optional[Callable[[str], None]] = None) -> dict[str, Any]:
+    ydl_opts: dict[str, Any] = {
+        'merge_output_format': 'mp4',
+        'outtmpl': str(download_dir / '%(title)s.%(ext)s'),
+        'progress_hooks': [progress_hook],
+        'quiet': True,
+        'no_warnings': True,
+        'logger': YDLLogger(on_error),
+    }
+
+    if audio_only:
+        ydl_opts.update({
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        })
+    elif video_only:
+        res_filter = f"[height<=?{quality}]" if quality else ""
+        # Prefer a video-only stream, fall back to the best video stream otherwise
+        ydl_opts['format'] = f'bestvideo{res_filter}[acodec=none]/bestvideo{res_filter}/best'
+        # Force-strip audio in case the fallback stream still carries a track
+        ydl_opts['postprocessors'] = [{
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4',
+        }]
+        ydl_opts['postprocessor_args'] = {
+            'video-convertor': ['-an'],
+            'merger': ['-an']
+        }
+    else:
+        res_filter = f"[height<=?{quality}]" if quality else ""
+        ydl_opts['format'] = f'bestvideo{res_filter}+bestaudio/best'
+
+    if start or end:
+        start_sec = parse_time(start) if start else 0.0
+        end_sec = parse_time(end) if end else float('inf')
+        ydl_opts['download_ranges'] = download_range_func(None, [(start_sec, end_sec)])
+        ydl_opts['force_keyframes_at_cuts'] = True
+
+    return ydl_opts
+
+
+def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, video_only: bool = False,
+                  quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None) -> None:
+    """Shared entry point for the CLI and the web backend — all state flows through `sink`."""
+    sink.on_analyzing()
+
+    try:
+        platform, video_title = analyze_url(url)
+    except Exception as e:
+        sink.on_error(f"Erreur d'analyse : {e}")
+        notification.notify(title="Vega - Erreur", message="Impossible d'analyser l'URL", app_name="Vega")
+        return
+
+    download_dir = get_download_path() / platform
+    download_dir.mkdir(parents=True, exist_ok=True)
+
+    sink.on_start(platform, video_title, download_dir)
+
+    progress_hook = make_progress_hook(sink)
+    ydl_opts = build_ydl_opts(download_dir, progress_hook, audio_only, video_only, quality, start, end,
+                               on_error=sink.on_error)
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+        log_to_history(video_title, url, platform, str(download_dir))
+        sink.on_finished(video_title)
+
+        notification.notify(
+            title="Vega - Succès",
+            message=f"Terminé : {video_title}",
+            app_name="Vega",
+            timeout=5,
+        )
+    except Exception as e:
+        sink.on_error(f"Erreur : {e}")
+        notification.notify(title="Vega - Erreur", message=str(e), app_name="Vega")

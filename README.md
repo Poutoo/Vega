@@ -60,6 +60,8 @@ pip install -e .
 vega <url> [options]
 ```
 
+Prefer a browser over the terminal? Vega also ships a local web UI — see [Web UI](#web-ui) below.
+
 ## Commands and options
 
 | Command / Option | Short alias | Description |
@@ -71,6 +73,7 @@ vega <url> [options]
 | `--start <time>` | `-s <time>` | Start of the clip to download (e.g. `0:00`, `1:23:45`) |
 | `--end <time>` | `-e <time>` | End of the clip to download (e.g. `3:00`, `1:25:00`) |
 | `--help` | `-h` | Show the program's help message |
+| `web` | — | Launch the local web UI |
 
 ## Examples
 
@@ -101,6 +104,29 @@ vega --help
 ```
 
 > **Note:** clipping uses `--force-keyframes-at-cuts` internally for a frame-accurate cut, which requires a light local re-encode (via FFmpeg) and therefore takes a bit longer than a regular download.
+
+## Web UI
+
+For anyone not comfortable with a terminal, Vega also ships a local web interface with the same download options and a live progress view. It's an optional extra, kept out of the default install to keep the base CLI lightweight.
+
+```bash
+# pipx
+pipx install "vega-dlp[web]"
+
+# or plain pip
+pip install "vega-dlp[web]"
+```
+
+```bash
+vega web
+```
+
+This starts a server bound to `127.0.0.1` only (never exposed to your network) and opens it in your default browser. Options:
+
+| Option | Description |
+|---|---|
+| `--port <n>` | Port to use (default: `8756`) |
+| `--no-browser` | Don't open the browser automatically |
 
 ## How it works
 
