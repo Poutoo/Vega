@@ -8,6 +8,7 @@ from typing import Any, Callable, Optional
 
 import yt_dlp
 from plyer import notification
+from yt_dlp.cookies import SUPPORTED_BROWSERS
 from yt_dlp.utils import download_range_func
 
 from vega.progress import ProgressSink
@@ -31,12 +32,16 @@ def parse_time(value: str) -> float:
 
 
 def validate_options(*, audio_only: bool, video_only: bool, quality: Optional[str],
-                      start: Optional[str], end: Optional[str]) -> None:
+                      start: Optional[str], end: Optional[str],
+                      cookies_from_browser: Optional[str] = None) -> None:
     """Raises ValueError with a user-facing message if the option combination is unusable."""
     if audio_only and video_only:
         raise ValueError("--audio et --video-only sont incompatibles")
     if quality is not None and not quality.isdigit():
         raise ValueError(f"Qualité invalide : '{quality}' (attendu un nombre, ex: 720)")
+    if cookies_from_browser is not None and cookies_from_browser not in SUPPORTED_BROWSERS:
+        raise ValueError(f"Navigateur inconnu : '{cookies_from_browser}' "
+                         f"(choix : {', '.join(sorted(SUPPORTED_BROWSERS))})")
     start_sec = parse_time(start) if start else None
     end_sec = parse_time(end) if end else None
     if start_sec is not None and end_sec is not None and start_sec >= end_sec:
@@ -118,8 +123,13 @@ def safe_notify(title: str, message: str, timeout: Optional[int] = None) -> None
         pass
 
 
-def analyze_url(url: str) -> tuple[str, str]:
-    with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
+def cookie_opts(cookies_from_browser: Optional[str]) -> dict[str, Any]:
+    return {'cookiesfrombrowser': (cookies_from_browser,)} if cookies_from_browser else {}
+
+
+def analyze_url(url: str, cookies_from_browser: Optional[str] = None) -> tuple[str, str]:
+    opts = {'quiet': True, 'logger': YDLLogger(), **cookie_opts(cookies_from_browser)}
+    with yt_dlp.YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=False)
         platform = info.get('extractor_key', 'Divers').capitalize()
         video_title = info.get('title', 'Vidéo inconnue')
@@ -191,13 +201,14 @@ def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], au
 
 def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, video_only: bool = False,
                   quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None,
-                  output_dir: Optional[Path] = None) -> bool:
+                  output_dir: Optional[Path] = None, cookies_from_browser: Optional[str] = None) -> bool:
     """Shared entry point for the CLI and the web backend — all state flows through `sink`.
 
     Returns True on success, False if the download failed (already reported to `sink`).
     """
     try:
-        validate_options(audio_only=audio_only, video_only=video_only, quality=quality, start=start, end=end)
+        validate_options(audio_only=audio_only, video_only=video_only, quality=quality, start=start, end=end,
+                         cookies_from_browser=cookies_from_browser)
     except ValueError as e:
         sink.on_error(str(e))
         return False
@@ -209,7 +220,7 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
     sink.on_analyzing()
 
     try:
-        platform, video_title = analyze_url(url)
+        platform, video_title = analyze_url(url, cookies_from_browser)
     except Exception as e:
         sink.on_error(f"Erreur d'analyse : {e}")
         safe_notify("Vega - Erreur", "Impossible d'analyser l'URL")
@@ -228,6 +239,7 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
     ydl_opts = build_ydl_opts(download_dir, progress_hook, audio_only, video_only, quality, start, end,
                                on_error=sink.on_error)
     ydl_opts['postprocessor_hooks'] = [make_postprocessor_hook(sink)]
+    ydl_opts.update(cookie_opts(cookies_from_browser))
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

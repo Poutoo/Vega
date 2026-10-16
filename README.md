@@ -73,6 +73,7 @@ Prefer a browser over the terminal? Vega also ships a local web UI — see [Web 
 | `--start <time>` | `-s <time>` | Start of the clip to download (e.g. `0:00`, `1:23:45`) |
 | `--end <time>` | `-e <time>` | End of the clip to download (e.g. `3:00`, `1:25:00`) |
 | `--output <dir>` | `-o <dir>` | Destination folder (default: `Downloads/<Platform>`) |
+| `--cookies-from-browser <browser>` | — | Use a browser's cookies (e.g. `firefox`, `chrome`) for content that needs a login, such as some Instagram posts |
 | `--help` | `-h` | Show the program's help message |
 | `web` | — | Launch the local web UI |
 
@@ -102,6 +103,9 @@ vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a -s 1:23:45
 
 # Save to a specific folder
 vega https://www.youtube.com/watch?v=XXXXXXXXXXX -o ~/Videos
+
+# Use your Firefox session (login-protected content)
+vega https://www.instagram.com/p/XXXXXXXXXXX/ --cookies-from-browser firefox
 
 # Show help
 vega --help

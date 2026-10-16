@@ -43,6 +43,7 @@ def print_help() -> None:
     table.add_row("--start <temps>", "-s <temps>", "Début de l'extrait (ex: 0:00, 1:23:45)")
     table.add_row("--end <temps>", "-e <temps>", "Fin de l'extrait (ex: 3:00, 1:25:00)")
     table.add_row("--output <dossier>", "-o <dossier>", "Dossier de destination (défaut : Downloads/<Plateforme>)")
+    table.add_row("--cookies-from-browser <nav>", "—", "Utiliser les cookies d'un navigateur (ex: firefox, chrome)")
     table.add_row("--help", "-h", "Affiche cette aide")
     table.add_row("web", "—", "Lance l'interface web locale")
 
@@ -68,12 +69,14 @@ class RichHelpAction(argparse.Action):
 
 
 def run_cli_download(url: str, audio_only: bool, video_only: bool, quality: Optional[str],
-                      start: Optional[str], end: Optional[str], output_dir: Optional[Path]) -> bool:
+                      start: Optional[str], end: Optional[str], output_dir: Optional[Path],
+                      cookies_from_browser: Optional[str]) -> bool:
     print_banner()
     sink = RichProgressSink(console)
     with sink.progress:
         return run_download(url, sink, audio_only=audio_only, video_only=video_only,
-                     quality=quality, start=start, end=end, output_dir=output_dir)
+                     quality=quality, start=start, end=end, output_dir=output_dir,
+                     cookies_from_browser=cookies_from_browser)
 
 
 def parse_web_args(argv: list[str]) -> argparse.Namespace:
@@ -126,9 +129,13 @@ def main() -> None:
 
     parser.add_argument("-o", "--output", type=Path, help="Dossier de destination (défaut : ~/Downloads/<Plateforme>)")
 
+    parser.add_argument("--cookies-from-browser", metavar="NAVIGATEUR",
+                         help="Utiliser les cookies d'un navigateur (ex: firefox, chrome) pour les contenus protégés")
+
     args = parser.parse_args()
     ok = run_cli_download(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
-                           start=args.start, end=args.end, output_dir=args.output)
+                           start=args.start, end=args.end, output_dir=args.output,
+                           cookies_from_browser=args.cookies_from_browser)
     sys.exit(0 if ok else 1)
 
 

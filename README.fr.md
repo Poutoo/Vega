@@ -73,6 +73,7 @@ Vous préférez un navigateur au terminal ? Vega propose aussi une interface web
 | `--start <temps>` | `-s <temps>` | Début de l'extrait à télécharger (ex : `0:00`, `1:23:45`) |
 | `--end <temps>` | `-e <temps>` | Fin de l'extrait à télécharger (ex : `3:00`, `1:25:00`) |
 | `--output <dossier>` | `-o <dossier>` | Dossier de destination (défaut : `Downloads/<Plateforme>`) |
+| `--cookies-from-browser <navigateur>` | — | Utilise les cookies d'un navigateur (ex : `firefox`, `chrome`) pour les contenus nécessitant une connexion, comme certains posts Instagram |
 | `--help` | `-h` | Affiche l'aide du programme |
 | `web` | — | Lance l'interface web locale |
 
@@ -102,6 +103,9 @@ vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a -s 1:23:45
 
 # Enregistrer dans un dossier précis
 vega https://www.youtube.com/watch?v=XXXXXXXXXXX -o ~/Videos
+
+# Utiliser la session Firefox (contenu protégé par connexion)
+vega https://www.instagram.com/p/XXXXXXXXXXX/ --cookies-from-browser firefox
 
 # Afficher l'aide
 vega --help

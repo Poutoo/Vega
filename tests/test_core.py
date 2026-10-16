@@ -100,3 +100,9 @@ def test_run_download_fails_fast_without_ffmpeg(monkeypatch):
     monkeypatch.setattr(core.shutil, "which", lambda _: None)
     assert core.run_download("https://example.com/v", Sink()) is False
     assert "FFmpeg" in errors[0]
+
+
+def test_validate_cookies_browser():
+    validate_options(**valid(cookies_from_browser="firefox"))
+    with pytest.raises(ValueError):
+        validate_options(**valid(cookies_from_browser="netscape7"))
