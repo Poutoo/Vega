@@ -134,6 +134,13 @@ def make_progress_hook(sink: ProgressSink) -> Callable[[dict], None]:
     return progress_hook
 
 
+def make_postprocessor_hook(sink: ProgressSink) -> Callable[[dict], None]:
+    def postprocessor_hook(d: dict) -> None:
+        if d['status'] == 'started':
+            sink.on_processing()
+    return postprocessor_hook
+
+
 def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], audio_only: bool,
                     video_only: bool, quality: Optional[str], start: Optional[str],
                     end: Optional[str], on_error: Optional[Callable[[str], None]] = None) -> dict[str, Any]:
@@ -210,6 +217,7 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
     progress_hook = make_progress_hook(sink)
     ydl_opts = build_ydl_opts(download_dir, progress_hook, audio_only, video_only, quality, start, end,
                                on_error=sink.on_error)
+    ydl_opts['postprocessor_hooks'] = [make_postprocessor_hook(sink)]
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

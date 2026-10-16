@@ -38,6 +38,9 @@ class WebSocketProgressSink:
     def on_progress(self, downloaded: int, total: Optional[int]) -> None:
         self._push({"type": "progress", "downloaded": downloaded, "total": total})
 
+    def on_processing(self) -> None:
+        self._push({"type": "processing"})
+
     def on_finished(self, title: str) -> None:
         self._push({"type": "finished", "title": title})
 

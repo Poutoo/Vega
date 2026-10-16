@@ -85,6 +85,9 @@ form.addEventListener("submit", async (event) => {
         setStatus("downloading", pct !== null ? `Téléchargement — ${pct}%` : `Téléchargement — ${formatBytes(data.downloaded)}`);
         break;
       }
+      case "processing":
+        setStatus("downloading", "Traitement en cours (FFmpeg)…");
+        break;
       case "finished":
         setStatus("finished", `Terminé — ${data.title}`);
         loadHistory();
