@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from vega._version import __version__
 from vega.core import run_download
 from vega.progress import PINK, PINK_DEEP, PINK_LIGHT, RichProgressSink
 
@@ -19,7 +20,7 @@ DEFAULT_WEB_PORT = 8756
 
 def print_banner() -> None:
     console.print(Panel.fit(
-        f"[bold {PINK_DEEP}]VEGA[/] [white]v1.2 - Downloader Universel[/white]",
+        f"[bold {PINK_DEEP}]VEGA[/] [white]v{__version__} - Downloader Universel[/white]",
         border_style=PINK
     ))
 
