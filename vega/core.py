@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import threading
 from datetime import datetime
 from pathlib import Path
@@ -198,6 +199,10 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
         validate_options(audio_only=audio_only, video_only=video_only, quality=quality, start=start, end=end)
     except ValueError as e:
         sink.on_error(str(e))
+        return False
+
+    if shutil.which("ffmpeg") is None:
+        sink.on_error("FFmpeg est introuvable. Installe-le et ajoute-le au PATH : https://ffmpeg.org/download.html")
         return False
 
     sink.on_analyzing()

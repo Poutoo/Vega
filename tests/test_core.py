@@ -83,3 +83,20 @@ def test_clip_sets_ranges_and_keyframes():
 
 def test_no_clip_by_default():
     assert "download_ranges" not in opts()
+
+
+def test_run_download_fails_fast_without_ffmpeg(monkeypatch):
+    import vega.core as core
+
+    errors = []
+
+    class Sink:
+        def on_error(self, message):
+            errors.append(message)
+
+        def on_analyzing(self):
+            raise AssertionError("must not start analysing without FFmpeg")
+
+    monkeypatch.setattr(core.shutil, "which", lambda _: None)
+    assert core.run_download("https://example.com/v", Sink()) is False
+    assert "FFmpeg" in errors[0]
