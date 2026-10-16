@@ -131,7 +131,7 @@ Cela démarre un serveur accessible uniquement en local (`127.0.0.1`, jamais exp
 ## Fonctionnement
 
 - Les vidéos sont automatiquement triées dans le dossier `Téléchargements/<Plateforme>` de l'utilisateur (ex : `Downloads/Youtube/`).
-- Chaque téléchargement est enregistré dans `history.json` (titre, URL, plateforme, chemin, date). Ce fichier reste local et n'est pas versionné.
+- Chaque téléchargement est enregistré dans `~/.vega/history.json` (titre, URL, plateforme, chemin, date). Ce fichier reste local.
 - Une notification système s'affiche à la fin du téléchargement (succès ou erreur).
 
 ## Licence

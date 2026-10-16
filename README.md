@@ -131,7 +131,7 @@ This starts a server bound to `127.0.0.1` only (never exposed to your network) a
 ## How it works
 
 - Videos are automatically sorted into the user's `Downloads/<Platform>` folder (e.g. `Downloads/Youtube/`).
-- Every download is logged to `history.json` (title, URL, platform, path, date). This file stays local and is not versioned.
+- Every download is logged to `~/.vega/history.json` (title, URL, platform, path, date). This file stays local.
 - A system notification is shown when the download finishes (success or error).
 
 ## License

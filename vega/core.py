@@ -1,4 +1,6 @@
 import json
+import os
+import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -22,8 +24,15 @@ def get_download_path() -> Path:
     return Path.home() / "Downloads"
 
 
+_HISTORY_LOCK = threading.Lock()
+
+
+def get_history_file() -> Path:
+    return Path.home() / ".vega" / "history.json"
+
+
 def log_to_history(title: str, url: str, platform: str, download_path: str) -> None:
-    history_file = Path("history.json")
+    history_file = get_history_file()
 
     new_entry = {
         "timestamp": datetime.now().isoformat(),
@@ -33,15 +42,20 @@ def log_to_history(title: str, url: str, platform: str, download_path: str) -> N
         "path": download_path,
     }
 
-    history = read_history()
-    history.append(new_entry)
+    # Web jobs run on separate threads: serialize the read-modify-write.
+    with _HISTORY_LOCK:
+        history = read_history()
+        history.append(new_entry)
 
-    with open(history_file, "w", encoding="utf-8") as f:
-        json.dump(history, f, indent=4, ensure_ascii=False)
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        tmp_file = history_file.with_suffix(".tmp")
+        with open(tmp_file, "w", encoding="utf-8") as f:
+            json.dump(history, f, indent=4, ensure_ascii=False)
+        os.replace(tmp_file, history_file)
 
 
 def read_history() -> list[dict]:
-    history_file = Path("history.json")
+    history_file = get_history_file()
     if not history_file.exists():
         return []
     try:
