@@ -45,3 +45,6 @@ packages = ["vega", "vega.web"]
 
 [tool.setuptools.package-data]
 "vega.web" = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
