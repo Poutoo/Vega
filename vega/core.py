@@ -13,11 +13,33 @@ from vega.progress import ProgressSink
 
 
 def parse_time(value: str) -> float:
-    """Accepts 'SS', 'MM:SS', or 'HH:MM:SS'."""
+    """Accepts 'SS', 'MM:SS', or 'HH:MM:SS'. Raises ValueError otherwise."""
+    parts = value.strip().split(":")
+    if not 1 <= len(parts) <= 3:
+        raise ValueError(f"Format de temps invalide : '{value}' (attendu SS, MM:SS ou HH:MM:SS)")
     seconds = 0.0
-    for part in value.split(":"):
-        seconds = seconds * 60 + float(part)
+    for part in parts:
+        try:
+            number = float(part)
+        except ValueError:
+            raise ValueError(f"Format de temps invalide : '{value}' (attendu SS, MM:SS ou HH:MM:SS)") from None
+        if number < 0 or number != number or number == float("inf"):
+            raise ValueError(f"Format de temps invalide : '{value}' (attendu SS, MM:SS ou HH:MM:SS)")
+        seconds = seconds * 60 + number
     return seconds
+
+
+def validate_options(*, audio_only: bool, video_only: bool, quality: Optional[str],
+                      start: Optional[str], end: Optional[str]) -> None:
+    """Raises ValueError with a user-facing message if the option combination is unusable."""
+    if audio_only and video_only:
+        raise ValueError("--audio et --video-only sont incompatibles")
+    if quality is not None and not quality.isdigit():
+        raise ValueError(f"Qualité invalide : '{quality}' (attendu un nombre, ex: 720)")
+    start_sec = parse_time(start) if start else None
+    end_sec = parse_time(end) if end else None
+    if start_sec is not None and end_sec is not None and start_sec >= end_sec:
+        raise ValueError("Le début de l'extrait doit être avant sa fin")
 
 
 def get_download_path() -> Path:
@@ -162,6 +184,12 @@ def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], au
 def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, video_only: bool = False,
                   quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None) -> None:
     """Shared entry point for the CLI and the web backend — all state flows through `sink`."""
+    try:
+        validate_options(audio_only=audio_only, video_only=video_only, quality=quality, start=start, end=end)
+    except ValueError as e:
+        sink.on_error(str(e))
+        return
+
     sink.on_analyzing()
 
     try:

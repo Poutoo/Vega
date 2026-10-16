@@ -60,6 +60,8 @@ def create_job(url: str, *, audio_only: bool, video_only: bool, quality: Optiona
         try:
             run_download(url, sink, audio_only=audio_only, video_only=video_only,
                          quality=quality, start=start, end=end)
+        except Exception as e:  # never leave the UI waiting on a dead worker
+            sink.on_error(f"Erreur inattendue : {e}")
         finally:
             loop.call_soon_threadsafe(job.queue.put_nowait, {"type": "closed"})
 
