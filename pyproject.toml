@@ -7,7 +7,7 @@ name = "vega-dlp"
 dynamic = ["version"]
 description = "Universal CLI video downloader (YouTube, TikTok, Instagram, etc.) built on yt-dlp, with a modern rich-powered interface."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Poutoo" }]
 keywords = ["youtube", "tiktok", "instagram", "download", "yt-dlp", "cli", "video"]
