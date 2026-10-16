@@ -66,11 +66,11 @@ class RichHelpAction(argparse.Action):
 
 
 def run_cli_download(url: str, audio_only: bool, video_only: bool, quality: Optional[str],
-                      start: Optional[str], end: Optional[str]) -> None:
+                      start: Optional[str], end: Optional[str]) -> bool:
     print_banner()
     sink = RichProgressSink(console)
     with sink.progress:
-        run_download(url, sink, audio_only=audio_only, video_only=video_only,
+        return run_download(url, sink, audio_only=audio_only, video_only=video_only,
                      quality=quality, start=start, end=end)
 
 
@@ -123,8 +123,9 @@ def main() -> None:
     parser.add_argument("-e", "--end", type=str, help="Fin de l'extrait à télécharger (ex: 3:00, 1:25:00)")
 
     args = parser.parse_args()
-    run_cli_download(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
-                      start=args.start, end=args.end)
+    ok = run_cli_download(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
+                           start=args.start, end=args.end)
+    sys.exit(0 if ok else 1)
 
 
 if __name__ == "__main__":

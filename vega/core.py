@@ -182,13 +182,16 @@ def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], au
 
 
 def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, video_only: bool = False,
-                  quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None) -> None:
-    """Shared entry point for the CLI and the web backend — all state flows through `sink`."""
+                  quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None) -> bool:
+    """Shared entry point for the CLI and the web backend — all state flows through `sink`.
+
+    Returns True on success, False if the download failed (already reported to `sink`).
+    """
     try:
         validate_options(audio_only=audio_only, video_only=video_only, quality=quality, start=start, end=end)
     except ValueError as e:
         sink.on_error(str(e))
-        return
+        return False
 
     sink.on_analyzing()
 
@@ -197,7 +200,7 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
     except Exception as e:
         sink.on_error(f"Erreur d'analyse : {e}")
         safe_notify("Vega - Erreur", "Impossible d'analyser l'URL")
-        return
+        return False
 
     download_dir = get_download_path() / platform
     download_dir.mkdir(parents=True, exist_ok=True)
@@ -216,6 +219,8 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
         sink.on_finished(video_title)
 
         safe_notify("Vega - Succès", f"Terminé : {video_title}", timeout=5)
+        return True
     except Exception as e:
         sink.on_error(f"Erreur : {e}")
         safe_notify("Vega - Erreur", str(e))
+        return False
