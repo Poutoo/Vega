@@ -4,14 +4,14 @@
 
 [![PyPI](https://img.shields.io/pypi/v/vega-dlp?color=F48FB1)](https://pypi.org/project/vega-dlp/)
 [![License: MIT](https://img.shields.io/github/license/Poutoo/Vega?color=F48FB1)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.9%2B-F48FB1)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.10%2B-F48FB1)](https://www.python.org/)
 [![Built with yt-dlp](https://img.shields.io/badge/built%20with-yt--dlp-F48FB1)](https://github.com/yt-dlp/yt-dlp)
 
 Universal CLI utility to download videos (YouTube, TikTok, Instagram, etc.) via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), with a modern interface powered by `rich`.
 
 ## Requirements
 
-- [Python 3.9+](https://www.python.org/downloads/)
+- [Python 3.10+](https://www.python.org/downloads/)
 - [FFmpeg](https://ffmpeg.org/) installed and available in your PATH (needed to merge audio/video and for conversions)
 
 ## Installation
