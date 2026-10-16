@@ -84,6 +84,17 @@ class YDLLogger:
         self._on_error(msg)
 
 
+def safe_notify(title: str, message: str, timeout: Optional[int] = None) -> None:
+    """Desktop notifications are best-effort: a missing backend must never fail a download."""
+    try:
+        kwargs: dict[str, Any] = {"title": title, "message": message, "app_name": "Vega"}
+        if timeout is not None:
+            kwargs["timeout"] = timeout
+        notification.notify(**kwargs)
+    except Exception:
+        pass
+
+
 def analyze_url(url: str) -> tuple[str, str]:
     with yt_dlp.YoutubeDL({'quiet': True, 'logger': YDLLogger()}) as ydl:
         info = ydl.extract_info(url, download=False)
@@ -157,7 +168,7 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
         platform, video_title = analyze_url(url)
     except Exception as e:
         sink.on_error(f"Erreur d'analyse : {e}")
-        notification.notify(title="Vega - Erreur", message="Impossible d'analyser l'URL", app_name="Vega")
+        safe_notify("Vega - Erreur", "Impossible d'analyser l'URL")
         return
 
     download_dir = get_download_path() / platform
@@ -176,12 +187,7 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
         log_to_history(video_title, url, platform, str(download_dir))
         sink.on_finished(video_title)
 
-        notification.notify(
-            title="Vega - Succès",
-            message=f"Terminé : {video_title}",
-            app_name="Vega",
-            timeout=5,
-        )
+        safe_notify("Vega - Succès", f"Terminé : {video_title}", timeout=5)
     except Exception as e:
         sink.on_error(f"Erreur : {e}")
-        notification.notify(title="Vega - Erreur", message=str(e), app_name="Vega")
+        safe_notify("Vega - Erreur", str(e))
