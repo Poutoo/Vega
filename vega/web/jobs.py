@@ -38,6 +38,9 @@ class WebSocketProgressSink:
     def on_progress(self, downloaded: int, total: Optional[int]) -> None:
         self._push({"type": "progress", "downloaded": downloaded, "total": total})
 
+    def on_processing(self) -> None:
+        self._push({"type": "processing"})
+
     def on_finished(self, title: str) -> None:
         self._push({"type": "finished", "title": title})
 
@@ -60,6 +63,8 @@ def create_job(url: str, *, audio_only: bool, video_only: bool, quality: Optiona
         try:
             run_download(url, sink, audio_only=audio_only, video_only=video_only,
                          quality=quality, start=start, end=end)
+        except Exception as e:  # never leave the UI waiting on a dead worker
+            sink.on_error(f"Erreur inattendue : {e}")
         finally:
             loop.call_soon_threadsafe(job.queue.put_nowait, {"type": "closed"})
 

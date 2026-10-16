@@ -72,6 +72,8 @@ Vous préférez un navigateur au terminal ? Vega propose aussi une interface web
 | `--quality <valeur>` | `-q <valeur>` | Limite la résolution vidéo (ex : `720`, `1080`) |
 | `--start <temps>` | `-s <temps>` | Début de l'extrait à télécharger (ex : `0:00`, `1:23:45`) |
 | `--end <temps>` | `-e <temps>` | Fin de l'extrait à télécharger (ex : `3:00`, `1:25:00`) |
+| `--output <dossier>` | `-o <dossier>` | Dossier de destination (défaut : `Downloads/<Plateforme>`) |
+| `--cookies-from-browser <navigateur>` | — | Utilise les cookies d'un navigateur (ex : `firefox`, `chrome`) pour les contenus nécessitant une connexion, comme certains posts Instagram |
 | `--help` | `-h` | Affiche l'aide du programme |
 | `web` | — | Lance l'interface web locale |
 
@@ -98,6 +100,12 @@ vega https://www.youtube.com/watch?v=XXXXXXXXXXX -s 0:00 -e 3:00
 
 # Extrait audio uniquement, de 1:23:45 à la fin de la vidéo
 vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a -s 1:23:45
+
+# Enregistrer dans un dossier précis
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -o ~/Videos
+
+# Utiliser la session Firefox (contenu protégé par connexion)
+vega https://www.instagram.com/p/XXXXXXXXXXX/ --cookies-from-browser firefox
 
 # Afficher l'aide
 vega --help
@@ -131,7 +139,7 @@ Cela démarre un serveur accessible uniquement en local (`127.0.0.1`, jamais exp
 ## Fonctionnement
 
 - Les vidéos sont automatiquement triées dans le dossier `Téléchargements/<Plateforme>` de l'utilisateur (ex : `Downloads/Youtube/`).
-- Chaque téléchargement est enregistré dans `history.json` (titre, URL, plateforme, chemin, date). Ce fichier reste local et n'est pas versionné.
+- Chaque téléchargement est enregistré dans `~/.vega/history.json` (titre, URL, plateforme, chemin, date). Ce fichier reste local.
 - Une notification système s'affiche à la fin du téléchargement (succès ou erreur).
 
 ## Licence
