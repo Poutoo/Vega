@@ -190,7 +190,8 @@ def build_ydl_opts(download_dir: Path, progress_hook: Callable[[dict], None], au
 
 
 def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, video_only: bool = False,
-                  quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None) -> bool:
+                  quality: Optional[str] = None, start: Optional[str] = None, end: Optional[str] = None,
+                  output_dir: Optional[Path] = None) -> bool:
     """Shared entry point for the CLI and the web backend — all state flows through `sink`.
 
     Returns True on success, False if the download failed (already reported to `sink`).
@@ -214,8 +215,12 @@ def run_download(url: str, sink: ProgressSink, *, audio_only: bool = False, vide
         safe_notify("Vega - Erreur", "Impossible d'analyser l'URL")
         return False
 
-    download_dir = get_download_path() / platform
-    download_dir.mkdir(parents=True, exist_ok=True)
+    download_dir = output_dir if output_dir is not None else get_download_path() / platform
+    try:
+        download_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        sink.on_error(f"Impossible de créer le dossier '{download_dir}' : {e}")
+        return False
 
     sink.on_start(platform, video_title, download_dir)
 

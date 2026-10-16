@@ -72,6 +72,7 @@ Prefer a browser over the terminal? Vega also ships a local web UI — see [Web 
 | `--quality <value>` | `-q <value>` | Limit video resolution (e.g. `720`, `1080`) |
 | `--start <time>` | `-s <time>` | Start of the clip to download (e.g. `0:00`, `1:23:45`) |
 | `--end <time>` | `-e <time>` | End of the clip to download (e.g. `3:00`, `1:25:00`) |
+| `--output <dir>` | `-o <dir>` | Destination folder (default: `Downloads/<Platform>`) |
 | `--help` | `-h` | Show the program's help message |
 | `web` | — | Launch the local web UI |
 
@@ -98,6 +99,9 @@ vega https://www.youtube.com/watch?v=XXXXXXXXXXX -s 0:00 -e 3:00
 
 # Audio-only clip, from 1:23:45 to the end of the video
 vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a -s 1:23:45
+
+# Save to a specific folder
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -o ~/Videos
 
 # Show help
 vega --help

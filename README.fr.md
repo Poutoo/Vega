@@ -72,6 +72,7 @@ Vous préférez un navigateur au terminal ? Vega propose aussi une interface web
 | `--quality <valeur>` | `-q <valeur>` | Limite la résolution vidéo (ex : `720`, `1080`) |
 | `--start <temps>` | `-s <temps>` | Début de l'extrait à télécharger (ex : `0:00`, `1:23:45`) |
 | `--end <temps>` | `-e <temps>` | Fin de l'extrait à télécharger (ex : `3:00`, `1:25:00`) |
+| `--output <dossier>` | `-o <dossier>` | Dossier de destination (défaut : `Downloads/<Plateforme>`) |
 | `--help` | `-h` | Affiche l'aide du programme |
 | `web` | — | Lance l'interface web locale |
 
@@ -98,6 +99,9 @@ vega https://www.youtube.com/watch?v=XXXXXXXXXXX -s 0:00 -e 3:00
 
 # Extrait audio uniquement, de 1:23:45 à la fin de la vidéo
 vega https://www.youtube.com/watch?v=XXXXXXXXXXX -a -s 1:23:45
+
+# Enregistrer dans un dossier précis
+vega https://www.youtube.com/watch?v=XXXXXXXXXXX -o ~/Videos
 
 # Afficher l'aide
 vega --help

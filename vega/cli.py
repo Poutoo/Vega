@@ -2,6 +2,7 @@ import argparse
 import sys
 import threading
 import webbrowser
+from pathlib import Path
 from typing import Optional
 
 from rich.console import Console
@@ -41,6 +42,7 @@ def print_help() -> None:
     table.add_row("--quality <val>", "-q <val>", "Limiter la résolution (ex: 720, 1080)")
     table.add_row("--start <temps>", "-s <temps>", "Début de l'extrait (ex: 0:00, 1:23:45)")
     table.add_row("--end <temps>", "-e <temps>", "Fin de l'extrait (ex: 3:00, 1:25:00)")
+    table.add_row("--output <dossier>", "-o <dossier>", "Dossier de destination (défaut : Downloads/<Plateforme>)")
     table.add_row("--help", "-h", "Affiche cette aide")
     table.add_row("web", "—", "Lance l'interface web locale")
 
@@ -66,12 +68,12 @@ class RichHelpAction(argparse.Action):
 
 
 def run_cli_download(url: str, audio_only: bool, video_only: bool, quality: Optional[str],
-                      start: Optional[str], end: Optional[str]) -> bool:
+                      start: Optional[str], end: Optional[str], output_dir: Optional[Path]) -> bool:
     print_banner()
     sink = RichProgressSink(console)
     with sink.progress:
         return run_download(url, sink, audio_only=audio_only, video_only=video_only,
-                     quality=quality, start=start, end=end)
+                     quality=quality, start=start, end=end, output_dir=output_dir)
 
 
 def parse_web_args(argv: list[str]) -> argparse.Namespace:
@@ -122,9 +124,11 @@ def main() -> None:
     parser.add_argument("-s", "--start", type=str, help="Début de l'extrait à télécharger (ex: 0:00, 1:23:45)")
     parser.add_argument("-e", "--end", type=str, help="Fin de l'extrait à télécharger (ex: 3:00, 1:25:00)")
 
+    parser.add_argument("-o", "--output", type=Path, help="Dossier de destination (défaut : ~/Downloads/<Plateforme>)")
+
     args = parser.parse_args()
     ok = run_cli_download(args.url, audio_only=args.audio, video_only=args.video_only, quality=args.quality,
-                           start=args.start, end=args.end)
+                           start=args.start, end=args.end, output_dir=args.output)
     sys.exit(0 if ok else 1)
 
 
