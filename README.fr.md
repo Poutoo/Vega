@@ -9,6 +9,8 @@
 
 Utilitaire CLI universel pour télécharger des vidéos (YouTube, TikTok, Instagram, etc.) via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), avec une interface moderne basée sur `rich`.
 
+![Vega télécharge une vidéo YouTube, l'audio d'un TikTok et un reel Instagram dans trois terminaux](https://raw.githubusercontent.com/Poutoo/Vega/main/docs/vega.gif)
+
 ## Prérequis
 
 - [Python 3.10+](https://www.python.org/downloads/)
